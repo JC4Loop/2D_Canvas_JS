@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Canvas Playground</title>
+<style>
+	body {
+		margin: 0;
+
+	}
+</style>
+</head>
+<body onload="startCanvas()">
+	<canvas id="canvas"></canvas>
+	<script>
+		var tri1;
+		var travelObjs = [];
+		var travelSquare,travelSquare2,travelSquare3,travelSquare4;
+		var smallSquaresUtoD = [];
+		var smallSqrsDtoU = [];
+		var smallSqrsLtoR = [];
+		var smallSqrsRtoL = [];
+		var leftPane, rightPane;
+		var lblCoords,lblFirstDiag , cvsLabel1, cvsLabel2, cvsLabel3,cvsLabel4;
+		var btn1XL, btn1XR,btn1YU,btn1YD, btn2XL, btn2XR,btn2YU,btn2YD,btn3XL,btn3XR,btn3YU,btn3YD;
+		var txtBtn1;
+		var bSecond = false;
+		var bFourth = false;
+
+		function startCanvas(){
+			var tri1Points = [
+							[	800, 700 , 450	], // x values
+							[	350 , 700 , 600	], // y values - 650 and 350 is one point
+						];
+
+			tri1 = new componentByPoints("#b3b300",50,50,"triangle",tri1Points);
+			canvasObj.start();
+			
+			travelSquare = new component(100,100,"#669999",canvasObj.iWidthRight,400,"square",1);
+			travelSquare.moveX = -1;
+			travelSquare2 = new component(100,100,"#669999",canvasObj.innerX - 100,550,"square",2);
+			travelSquare2.moveX = 1;
+			travelSquare3 = new component(100,100,"#669999",canvasObj.innerX + 300,canvasObj.innerHeight +100,"square",3);
+			travelSquare3.moveY = -1;
+			travelSquare4 = new component(100,100,"#669999",canvasObj.innerX + 300,canvasObj.ptHeight,"square",4);
+			travelSquare4.moveY = 1;
+
+			leftPane = new component(canvasObj.innerX,	canvasObj.screenHeight,	"black",0,0,"square");
+			rightPane = new component(canvasObj.innerX, canvasObj.screenHeight, "black",canvasObj.iWidthRight, 0,"square");
+								//width 							height 							x 				y
+			lblCoords1 = new component("17px","Consolas","#00ff55", canvasObj.innerWidth /2, canvasObj.ptHeight /2,"text");
+			lblCoords1.text = "X " + tri1Points[0][0] + "  " + tri1Points[0][1] + "  " + tri1Points[0][2];
+			lblCoords2 = new component("17px","Consolas","#00ff55", canvasObj.innerWidth /2, canvasObj.ptHeight /2 + 20,"text");
+			lblCoords2.text = "Y   " + tri1Points[1][0] + "  " + tri1Points[1][1] + "  " + tri1Points[1][2];
+
+			lblFirstDiag = new component("17px","Consolas","#00ff55",30,200,"text");
+			lblFirstDiag.text = "Diagonal line 1";
+			lblFirstDiagOp = new component("17px", "Consolas","#00ff55",30,220,"text");
+			lblFirstDiagOp.text = "Opposite Point of Diagonal 1";
+
+			lblSecondDiag = new component("17px","Consolas","#00ff55",30,255,"text");
+			lblSecondDiag.text = "Diagonal line 2";
+			lblSecondDiagOp = new component("17px","Consolas","#00ff55",30,275,"text");
+			lblSecondDiagOp.text = "Opposite Point of Diagonal 2";
+
+			lblThirdDiag = new component("17px","Consolas","#00ff55",30,310,"text");
+			lblThirdDiag.text = "Diagonal line 3";
+			lblThirdDiagOp = new component("17px","Consolas","#00ff55",30,330,"text");
+			lblThirdDiagOp.text = "Opposite Point of Diagonal 3";
+
+			txtBtn1 = new txtButton(250,30,"white","red",canvasObj.innerWidth + 30,50,"Click To Reset square Fall")
+					//txtButton(mWidth,mHeight,txtColour,btnColour,x, y,text)
+			btn1XL = new component(30,30,"blue",canvasObj.innerX + canvasObj.innerWidth + 15, 160,"btn");
+			btn1XR = new component(30,30,"blue",canvasObj.innerX + canvasObj.innerWidth + 75, 160,"btn");
+			btn1YU = new component(30,30,"blue",canvasObj.innerX + canvasObj.innerWidth + 45, 130,"btn");
+			btn1YD = new component(30,30,"blue",canvasObj.innerX + canvasObj.innerWidth + 45, 190,"btn");
+
+			btn2XL = new component(30,30,"blue",canvasObj.innerX + canvasObj.innerWidth + 15, 360,"btn");
+			btn2XR = new component(30,30,"blue",canvasObj.innerX + canvasObj.innerWidth + 75, 360,"btn");
+			btn2YU = new component(30,30,"blue",canvasObj.innerX + canvasObj.innerWidth + 45, 330,"btn");
+			btn2YD = new component(30,30,"blue",canvasObj.innerX + canvasObj.innerWidth + 45, 390,"btn");
+
+			btn3XL = new component(30,30,"blue",canvasObj.innerX + canvasObj.innerWidth + 15, 560,"btn");
+			btn3XR = new component(30,30,"blue",canvasObj.innerX + canvasObj.innerWidth + 75, 560,"btn");
+			btn3YU = new component(30,30,"blue",canvasObj.innerX + canvasObj.innerWidth + 45, 530,"btn");
+			btn3YD = new component(30,30,"blue",canvasObj.innerX + canvasObj.innerWidth + 45, 590,"btn");
+
+			initTravelSquares();
+		}
+
+		
+		function initTravelSquares(){
+			var width = canvasObj.innerWidth;
+			var height = 10;
+			var gap = 5;
+			var a1 = width / (height + gap); //how many squares fit in to width with gaps
+		
+			var numOfSquares = Math.floor(a1);
+
+			var x = canvasObj.innerX;
+			for (var i = 0; i < numOfSquares; i++){
+				smallSquaresUtoD.push(new component(height,height,"#ff6600", x, canvasObj.ptHeight - height, "square"));
+				smallSquaresUtoD[i].moveY = 2; // drop down y axis
+				smallSqrsDtoU.push(new component(height,height,"white",x,canvasObj.ptHeight + canvasObj.innerHeight,"square"));
+				smallSqrsDtoU[i].moveY = -2; // move up y axis
+
+				x += height + gap;
+			}
+			// left to right and right to left
+			width = height;
+			height = canvasObj.innerHeight;
+			numOfSquares = Math.floor(height / (width + gap));
+			var y = canvasObj.ptHeight;
+			for (var i = 0; i < numOfSquares; i++){
+				smallSqrsLtoR.push(new component(width,width,"yellow",canvasObj.innerX ,y,"square"));
+				smallSqrsLtoR[i].moveX = 2;
+				smallSqrsRtoL.push(new component(width,width,"#00cc7a",canvasObj.innerX + canvasObj.innerWidth - width,y,"square"));
+				smallSqrsRtoL[i].moveX = -2;
+				y += width + gap;
+			}
+			
+		}
+
+		var canvasObj = {
+			canvas : document.getElementById('canvas'),
+			start : function(){
+				this.context = this.canvas.getContext('2d');
+				this.screenWidth = window.innerWidth - 10;
+				var twentyPercentWidth = (this.screenWidth / 5);
+				this.screenHeight = window.innerHeight - 10;
+				//this.tenPercentHeight = window.innerHeight / 10;
+				this.innerWidth = this.screenWidth - (twentyPercentWidth * 2);
+				this.innerHeight = this.innerWidth / (16/9);
+				this.frameNo = 0;
+				this.interval = setInterval(updateAll, 20); // 20 milliseconds (50 times per second)
+				this.canvas.width = this.screenWidth;
+				this.canvas.height = this.screenHeight;
+				this.ptHeight = (this.screenHeight - this.innerHeight) / 2;
+				this.iWidthRight = this.screenWidth - twentyPercentWidth;
+				this.innerX = twentyPercentWidth;
+				this.bVerticalFinished = false;
+				window.addEventListener('mousedown', function (e) {
+					canvasObj.mouseX = e.pageX;
+					canvasObj.mouseY = e.pageY;
+				})
+				
+				window.addEventListener('mousemove',function (e){
+					var bOutsidebtn;
+					// if mouse hovers over txtBtn
+					if (e.pageX >= txtBtn1.x && e.pageX <= (txtBtn1.x + txtBtn1.mWidth)){
+						if (e.pageY >= txtBtn1.y && e.pageY <= txtBtn1.y + txtBtn1.mHeight){
+							document.body.style.cursor = 'pointer';
+							bOutsidebtn = false;
+						} else {
+							bOutsidebtn = true;
+						}
+
+					} else {
+						bOutsidebtn = true;
+					}
+					if (bOutsidebtn == true && document.body.style.cursor == 'pointer'){
+						document.body.style.cursor = "default";
+					}
+				})
+			},
+			update : function(){
+				this.context.fillStyle = "black";
+				this.context.fillRect(0,0,this.screenWidth,this.screenHeight);
+				this.context.fillStyle = "#cce6ff";
+				this.context.fillRect(this.innerX, this.ptHeight,this.innerWidth,this.innerHeight);
+			},
+			clear : function() {
+				this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+			},
+			stop : function() {
+				clearInterval(this.interval);
+			}
+		}
+
+		function componentByPoints(colour,x,y,type,points){
+			this.color = colour;
+			this.x = x;
+			this.y = y;
+			this.type = type;
+			this.points = points;
+			this.update = function(){
+				var ctx = canvasObj.context;
+				if (this.type == "triangle") {
+					ctx.beginPath();
+					ctx.moveTo(points[0][0],points[1][0]);
+					ctx.lineTo(points[0][1],points[1][1]);
+					ctx.lineTo(points[0][2],points[1][2]);
+					ctx.closePath();
+					ctx.fillStyle = this.color;
+					ctx.fill();
+					ctx.stroke();
+				}
+			},
+			this.getLeftX = function(){
+				var leftX = this.points[0][0];
+				for (var i = 1; i < this.points[0].length; i++){
+					if (this.points[0][i] < leftX){
+						leftX = this.points[0][i];
+					}
+				}
+				return leftX;
+			},
+			this.getRightX = function(){
+				var rightX = this.points[0][0];
+				for (var i = 1; i < this.points[0].length; i++){
+					if (this.points[0][i] > rightX){
+						rightX = this.points[0][i];
+					}
+				}
+				return rightX;
+			},
+			this.getTopY = function(){
+				var topY = this.points[1][0];
+				for (var i = 1; i < this.points[1].length; i++){
+					if(this.points[1][i] < topY){
+						topY = this.points[1][i];
+					}
+				}
+				return topY;
+			},
+			this.getBottomY = function(){
+				var btmY = this.points[1][0];
+				for (var i = 1; i < this.points[1].length; i++){
+					if(this.points[1][i] > btmY){
+						btmY = this.points[1][i];
+					}
+				}
+				return btmY;
+			},
+			this.getDiagonalPoints = function(){
+				if (this.type == "triangle"){
+					var diagLines = [];
+
+					for (var i = 0; i < this.points[0].length -1; i++){
+						for (var j = i + 1; j < this.points[0].length; j++){
+							if (this.points[0][i] != this.points[0][j] && this.points[1][i] != this.points[1][j]){
+								diagLines.push([ [ this.points[0][i], this.points[1][i] ], [this.points[0][j], this.points[1][j] ] ] );
+							}
+						}
+					
+					}
+					/*
+					for (var i = 0; i < 4; i++){
+						alert(diagLines[i]);
+					} */
+					
+					return diagLines;
+				}
+				
+			}
+			this.rotate = function(){
+
+			},
+			this.collisionCheck = function(otherObj){
+				if (otherObj.type == "triangle"){
+					//var oObjTop = otherObj
+				}
+			} 
+		}
+
+		function txtButton(mWidth,mHeight,txtColour,btnColour,x, y,text){
+			this.x = x;
+			this.y = y;
+			this.mWidth = mWidth;
+			this.mHeight = mHeight;
+			this.btn = new component(mWidth,mHeight,btnColour,x,y,"btn");
+			this.textCmp = new component("17px","Consolas",txtColour,x + 20,y + 20,"text");
+			this.textCmp.text = text;
+			this.update = function(){
+				this.btn.update();
+				this.textCmp.update();
+			}
+		}
+
+		function component(mWidth,mHeight,colour,x,y,type,id){
+			this.mWidth = mWidth;
+			this.mHeight = mHeight;
+			this.color = colour;
+			this.startingX = x;
+			this.startingY = y;
+			this.x = x;
+			this.y = y;
+			this.type = type;
+			this.moveX;
+			this.moveY;
+			this.text;
+			this.id = id;
+
+			this.update = function(){
+				var ctx = canvasObj.context;
+				if (this.type == "square" || this.type == "btn"){
+					ctx.fillStyle = this.color;
+					ctx.fillRect(this.x, this.y, this.mWidth, this.mHeight);
+				} else if(this.type == "text" || this.type == "txtBtn"){
+					ctx.font = this.mWidth + " " + this.mHeight;
+					ctx.fillStyle = this.color;
+					ctx.fillText(this.text ,this.x ,this.y);
+				}
+			},
+			this.clicked = function() {
+				if (this.type == "btn"){
+					var clicked = true;
+					if (((this.y + this.mHeight) < canvasObj.mouseY) || (this.y > canvasObj.mouseY) || ((this.x + this.mWidth) < canvasObj.mouseX) || (this.x > canvasObj.mouseX)) {
+						clicked = false;
+					}
+					return clicked;
+				} else {
+					return false;
+				}	
+					
+			}
+			this.getLeftX = function(){
+				return this.x;
+			},
+			this.getRightX = function(){
+				return this.x + this.mWidth;
+			},
+			this.getTopY = function(){
+				return this.y;
+			},
+			this.getBottomY = function(){
+				return this.y + this.mHeight;
+			},
+			this.collisionCheck = function(otherObj){
+				var bCollision = false;
+				var bPossibleCol = false;
+				if (!( (this.getRightX() < otherObj.getLeftX() ) || (this.getLeftX() > otherObj.getRightX())
+						|| (this.getBottomY() < otherObj.getTopY()) || (this.getTopY() > otherObj.getBottomY() ) )){
+					
+						bPossibleCol = true;
+						var diagPoints = otherObj.getDiagonalPoints();
+
+						for (var i = 0; i < diagPoints.length; i++){
+							bCollision = true;
+							var x0 = diagPoints[i][0][0];
+							var y0 = diagPoints[i][0][1];
+							var x1 = diagPoints[i][1][0];
+							var y1 = diagPoints[i][1][1];
+
+							// get x and y values of opposite  point
+							var oppositeX;
+							var oppositeY;
+							var bgetOpposites = true;
+							for (var x = 0; x < otherObj.points[0].length; x++){
+								if (bgetOpposites){
+									oppositeX = otherObj.points[0][x];
+									oppositeY = otherObj.points[1][x];
+								}
+								
+								var bXandYnoMatch = true;
+								for (var y = 0; y < 2; y++){
+									if (oppositeX == diagPoints[i][y][0] && oppositeY == diagPoints[i][y][1]){
+										// wrong value
+										bXandYnoMatch = false;
+										bgetOpposites = true;
+										continue;
+									}
+								}
+								if (bXandYnoMatch == true){
+									break;
+								}
+							}
+							if(i == 0){
+								lblFirstDiag.text = "First Line is (" + x0 + ", " + y0 + ") , (" + x1 + ", " + y1 + ")";
+								lblFirstDiagOp.text = "Opposite Point: (" + oppositeX + ", " + oppositeY + ")";
+							}
+							if (i == 1){
+								lblSecondDiag.text = "Second Line is (" + x0 + ", " + y0 + ") , (" + x1 + ", " + y1 + ")";
+								lblSecondDiagOp.text = "Opposite Point: (" + oppositeX + ", " + oppositeY + ")";
+							}
+							if (i == 2){
+								lblThirdDiag.text = "Third Line is (" + x0 + ", " + y0 + ") , (" + x1 + ", " + y1 + ")";
+								lblThirdDiagOp.text = "Third Point: (" + oppositeX + ", " + oppositeY + ")";
+							}
+							// y = mx + b
+							var m = (y1 - y0) / (x1 - x0);
+							var b = y0 - (m * x0);
+							var bTopOfLineIsCrash;
+							
+							if (((m * oppositeX) + b) < oppositeY){
+								//alert('bottom of diag is crash');
+								bTopOfLineIsCrash = false;
+							} else {
+								//alert('top of diag is crash');
+								bTopOfLineIsCrash = true;
+							}
+
+							var bAboveTriBtm = false;
+							var bBelowTriTop = false;
+							var bBtmLtoTR = false;
+							var xVal,yCompare,yResult;
+							if (x0 > x1){
+								if (y0 < y1){
+									bBtmLtoTR = true;
+								} else {
+									bBtmLtoTR = false;
+								}
+								
+							} else {
+								if (y0 < y1){
+									bBtmLtoTR = false;
+								} else {
+									bBtmLtoTR = true;
+								}
+								
+							}
+							if (bBtmLtoTR == true){
+								if (bTopOfLineIsCrash == true){
+									xVal = this.getLeftX();
+									yCompare = this.getTopY();
+								} else {
+									xVal = this.getRightX();
+									yCompare = this.getBottomY();
+								}
+							} else { // if line is top left to btm right
+								if (bTopOfLineIsCrash == true){
+									xVal = this.getRightX();
+									yCompare = this.getTopY();
+								} else {
+									xVal = this.getLeftX();
+									yCompare = this.getBottomY();
+								}
+							}
+							
+							var yResult = (m * xVal) + b;
+							if (bTopOfLineIsCrash == true){
+								if (yResult < yCompare){
+									bCollision = false;
+									break;
+								} 
+							} else {
+								if (yResult > yCompare){
+									bCollision = false;
+									break;
+								} 
+							}
+							
+						} // end for loop
+						if (diagPoints.length < 3){
+							lblThirdDiag.text = "No Third Diagonal Line";
+						}
+						if (diagPoints.length < 2) {
+							lblSecondDiag.text = "No Second Diagonal Line";
+						}
+				} //  end of if inside square
+				return bCollision;
+			}
+		}
+
+
+	function updateAll(){
+		canvasObj.clear();
+		canvasObj.update();
+		tri1.update();
+
+		if (canvasObj.mouseX && canvasObj.mouseY){
+			cvsBtnClicked();
+		}
+
+		handleUtoDCollision();
+		handleDtoUCollision();
+		handleLtoRCollision();
+		handleRtoLCollision();
+		txtBtn1.update();
+		updatePnlslbls();
+		canvasObj.frameNo++;
+	}
+
+	function cvsBtnClicked(){
+		if(txtBtn1.btn.clicked()){
+				for (var i = 0; i < smallSquaresUtoD.length;i++){
+					smallSquaresUtoD[i].y = canvasObj.ptHeight;
+					smallSquaresUtoD[i].moveY = 2;
+					smallSqrsDtoU[i].y = canvasObj.ptHeight + canvasObj.innerHeight;
+					smallSqrsDtoU[i].moveY = -2;
+				}
+				for (i = 0; i < smallSqrsLtoR.length; i++){
+					smallSqrsLtoR[i].x = canvasObj.innerX;
+					smallSqrsLtoR[i].moveX = 2;
+					smallSqrsRtoL[i].x = (canvasObj.innerX + canvasObj.innerWidth) - 10;// smallSqrsRtoL[i].mWidth;
+					smallSqrsRtoL[i].moveX = -2;
+				}
+				canvasObj.bVerticalFinished = false;
+		}
+
+		if (btn1XL.clicked()){
+			tri1.points[0][0] += -10;
+		}
+		if (btn1XR.clicked()){
+			tri1.points[0][0] += 10;
+		}
+		if (btn1YU.clicked()){
+			tri1.points[1][0] += -10;		
+		}
+		if(btn1YD.clicked()){
+			tri1.points[1][0] += 10;
+		}
+		if (btn2XL.clicked()){
+			tri1.points[0][1] += -10;
+		}
+		if(btn2XR.clicked()){
+			tri1.points[0][1] += 10;
+		}
+		if(btn2YU.clicked()){
+			tri1.points[1][1] += -10;
+		}
+		if (btn2YD.clicked()){
+			tri1.points[1][1] += 10;
+		}
+		if (btn3XL.clicked()){
+			tri1.points[0][2] += -10;
+		}
+		if(btn3XR.clicked()){
+			tri1.points[0][2] += 10;
+		}
+		if(btn3YU.clicked()){
+			tri1.points[1][2] += -10;
+		}
+		if (btn3YD.clicked()){
+			tri1.points[1][2] += 10;
+		}
+		lblCoords1.text = "X " + tri1.points[0][0] + "  " + tri1.points[0][1] + "  " + tri1.points[0][2];
+		lblCoords2.text = "Y   " + tri1.points[1][0] + "  " + tri1.points[1][1] + "  " + tri1.points[1][2];
+		canvasObj.mouseX = false;
+		canvasObj.mouseY = false;
+	}
+
+	function handleUtoDCollision(){
+		for (var i = 0; i < smallSquaresUtoD.length; i++){
+			if (smallSquaresUtoD[i].y >= (canvasObj.innerHeight + canvasObj.ptHeight) - smallSquaresUtoD[i].mHeight){
+				smallSquaresUtoD[i].moveY = 0;
+			}
+			if (!smallSquaresUtoD[i].collisionCheck(tri1)){
+				smallSquaresUtoD[i].y += smallSquaresUtoD[i].moveY;
+			}
+			smallSquaresUtoD[i].update();
+		}
+	}
+
+	function handleDtoUCollision(){
+		var bFinished = true;
+		for (var i = 0; i < smallSqrsDtoU .length; i++){
+			var bHitBoundary = true;
+			var bCollision = true;
+			if (smallSqrsDtoU[i].y <= canvasObj.ptHeight){ // if has hit boundary of inner canvas/window
+				smallSqrsDtoU[i].moveY = 0;
+			} else {
+				bHitBoundary = false;
+			}
+
+			if (!smallSqrsDtoU[i].collisionCheck(tri1)){
+				smallSqrsDtoU[i].y += smallSqrsDtoU[i].moveY;
+				bCollision = false;
+			} else {
+				smallSqrsDtoU[i].moveY = 0;
+			}
+			smallSqrsDtoU[i].update();
+			if (bHitBoundary == false && bCollision == false){
+				bFinished = false;
+			}
+		}
+		if (bFinished){
+			canvasObj.bVerticalFinished = true;
+		}
+	}
+
+	function handleLtoRCollision(){
+		if (canvasObj.bVerticalFinished){
+			for (var i = 0; i < smallSqrsLtoR.length; i++){
+				if (smallSqrsLtoR[i].x >= (canvasObj.innerX + canvasObj.innerWidth - 10)){
+					smallSqrsLtoR[i].moveX = 0;
+				}
+				if (!smallSqrsLtoR[i].collisionCheck(tri1)){
+					smallSqrsLtoR[i].x += smallSqrsLtoR[i].moveX;
+				}
+				smallSqrsLtoR[i].update();
+			}
+		} else {
+			for (var i = 0; i < smallSqrsLtoR.length; i++){
+				smallSqrsLtoR[i].update();
+			}
+		}
+	}
+	function handleRtoLCollision(){
+		if (canvasObj.bVerticalFinished){
+			for (var i = 0; i < smallSqrsRtoL.length; i++){
+				if (smallSqrsRtoL[i].x <= (canvasObj.innerX)){
+					smallSqrsRtoL[i].moveX = 0;
+				}
+				if (!smallSqrsRtoL[i].collisionCheck(tri1)){
+					smallSqrsRtoL[i].x += smallSqrsRtoL[i].moveX;
+				}
+				smallSqrsRtoL[i].update();
+			}
+		} else {
+			for (var i = 0; i < smallSqrsRtoL.length; i++){
+				smallSqrsRtoL[i].update();
+			}
+		}
+	}
+		
+
+	function updatePnlslbls(){
+		leftPane.update();
+		rightPane.update();
+
+		lblCoords1.update();
+		lblCoords2.update();
+		lblFirstDiag.update();
+		lblFirstDiagOp.update();
+		lblSecondDiag.update();
+		lblSecondDiagOp.update();
+		lblThirdDiag.update();
+		lblThirdDiagOp.update();
+		btn1XL.update();
+		btn1XR.update();
+		btn1YU.update();
+		btn1YD.update();
+		btn2XL.update();
+		btn2XR.update();
+		btn2YU.update();
+		btn2YD.update();
+		btn3XL.update();
+		btn3XR.update();
+		btn3YU.update();
+		btn3YD.update();
+	}
+
+	</script>
+</body>
+</html>

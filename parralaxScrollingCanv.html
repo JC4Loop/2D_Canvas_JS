@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Parralax Scrolling</title>
+</head>
+<body onload="canvasObject.start()">
+	<canvas id="canv" width="700" height="500">Canvas Not Supported In Browser</canvas>
+	<script>
+		var frontObjs = [];
+		var midObjs = [];
+		var backObjs = [];
+
+		var blueColour = {
+			lightest : "#cce0ff",
+			mid : "#66a3ff",
+			darkest : "#0052cc"
+		};
+
+
+		var canvasObject = {
+			canvas : document.getElementById('canv'),
+			start : function(){
+				this.context = this.canvas.getContext('2d');
+				this.frameNo = 0;
+				this.interval = setInterval(updateArea, 20); // 20 milliseconds (50 times per second)
+			},
+			clear : function() {
+				this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+			},
+			stop : function() {
+				clearInterval(this.interval);
+			}
+		}
+
+		function everyInterval(n) {
+			// if framenumber is divisible by n without remainders
+			if ((canvasObject.frameNo / n) % 1 == 0) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		function building(h,w,colour,x,y){
+			this.height = h;
+			this.width = w;
+			this.x = x;
+			this.y = y;
+			this.update = function() {
+				ctx = canvasObject.context;
+				ctx.fillStyle = colour;
+				ctx.fillRect(this.x, this.y, this.width, this.height)
+			}
+		}
+
+		function updateArea(){
+			canvasObject.clear();
+			canvasObject.frameNo++;
+
+			if (canvasObject.frameNo == 1 || everyInterval(200)) {
+				x = canvasObject.canvas.width;
+				y = canvasObject.canvas.height / 8;
+				backObjs.push(new building(75,10,blueColour.lightest,x,y));
+			}
+
+			if (canvasObject.frameNo == 1 || everyInterval(100)) {
+				x = canvasObject.canvas.width;
+				y = canvasObject.canvas.height / 5;
+				midObjs.push(new building(150,10,blueColour.mid,x,y));
+			}
+
+			if (canvasObject.frameNo == 1 || everyInterval(50)) {
+				x = canvasObject.canvas.width;
+				y = canvasObject.canvas.height - (canvasObject.canvas.height / 2);
+				frontObjs.push(new building(300,10,blueColour.darkest,x,y));
+			}
+
+			for (var i = 0; i < backObjs.length; i++){
+				backObjs[i].x += -1;
+				backObjs[i].update();
+			}
+			for (var i = 0; i < midObjs.length; i++){
+				midObjs[i].x += -2;
+				midObjs[i].update();
+			}
+			for (var i = 0; i < frontObjs.length; i++){
+				frontObjs[i].x += -4;
+				frontObjs[i].update();
+			}
+
+			if (framenumber == 2000){
+				framenumber = 1;
+			}
+		}
+
+	</script>
+</body>
+</html>

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Canvas Playground</title>
+<style>
+	body {
+		margin: 0;
+	}
+</style>
+</head>
+<body onload="startCanvas()">
+	<canvas id="canvas"></canvas>
+	<script>
+		var tri1;
+		var travelSquare1 = [];
+
+		var leftPane, rightPane;
+		var cvsLabel1, cvsLabel2;
+
+		function startCanvas(){
+			var tri1Points = [
+							[	800, 700 , 450	], // x values
+							[	200 , 550 , 450	], // y values - 800 and 200 is one point
+							//[650,900,650],
+							//[350,600,600],
+
+						];
+
+			tri1 = new componentByPoints("#b3b300",50,50,"triangle",tri1Points);
+			canvasObj.start();
+			
+			
+			travelSquare1.push(new component(100,100,"#669999",canvasObj.iWidthRight,300,"square",1));
+			travelSquare1[0].moveX = -1;
+
+
+			leftPane = new component(canvasObj.innerX,	canvasObj.screenHeight,	"black",0,0,"square");
+			rightPane = new component(canvasObj.innerX, canvasObj.screenHeight, "black",canvasObj.iWidthRight, 0,"square");
+								//width 							height 							x 				y
+
+
+			cvsLabel1 = new component("17px","Consolas","#00ff55",30,50,"text");
+			cvsLabel1.text = "travelSquare has no potential clash";
+			cvsLabel2 = new component("17px","Consolas","#00ff55",30,100,"text");
+			cvsLabel2.text = "travelSquare Clash: false";
+
+
+			
+		}
+
+
+
+		var canvasObj = {
+			canvas : document.getElementById('canvas'),
+			start : function(){
+				this.context = this.canvas.getContext('2d');
+				this.screenWidth = window.innerWidth - 10;
+				var twentyPercentWidth = (this.screenWidth / 5);
+				this.screenHeight = window.innerHeight - 10;
+				//this.tenPercentHeight = window.innerHeight / 10;
+				this.innerWidth = this.screenWidth - (twentyPercentWidth * 2);
+				this.innerHeight = this.innerWidth / (16/9);
+				this.frameNo = 0;
+				this.interval = setInterval(updateAll, 20); // 20 milliseconds (50 times per second)
+				this.canvas.width = this.screenWidth;
+				this.canvas.height = this.screenHeight;
+				this.ptHeight = (this.screenHeight - this.innerHeight) / 2;
+				this.iWidthRight = this.screenWidth - twentyPercentWidth;
+				this.innerX = twentyPercentWidth;
+			},
+			update : function(){
+				this.context.fillStyle = "black";
+				this.context.fillRect(0,0,this.screenWidth,this.screenHeight);
+				this.context.fillStyle = "#cce6ff";
+				this.context.fillRect(this.innerX, this.ptHeight,this.innerWidth,this.innerHeight);
+			},
+			clear : function() {
+				this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+			},
+			stop : function() {
+				clearInterval(this.interval);
+			}
+		}
+
+		function componentByPoints(colour,x,y,type,points){
+			this.color = colour;
+			this.x = x;
+			this.y = y;
+			this.type = type;
+			this.points = points;
+			this.update = function(){
+				var ctx = canvasObj.context;
+				if (this.type == "triangle") {
+					ctx.beginPath();
+					ctx.moveTo(points[0][0],points[1][0]);
+					ctx.lineTo(points[0][1],points[1][1]);
+					ctx.lineTo(points[0][2],points[1][2]);
+					ctx.closePath();
+					ctx.fillStyle = this.color;
+					ctx.fill();
+					ctx.stroke();
+				}
+			},
+			this.getLeftX = function(){
+				var leftX = this.points[0][0];
+				for (var i = 1; i < this.points[0].length; i++){
+					if (this.points[0][i] < leftX){
+						leftX = this.points[0][i];
+					}
+				}
+				return leftX;
+			},
+			this.getRightX = function(){
+				var rightX = this.points[0][0];
+				for (var i = 1; i < this.points[0].length; i++){
+					if (this.points[0][i] > rightX){
+						rightX = this.points[0][i];
+					}
+				}
+				return rightX;
+			},
+			this.getTopY = function(){
+				var topY = this.points[1][0];
+				for (var i = 1; i < this.points[1].length; i++){
+					if(this.points[1][i] < topY){
+						topY = this.points[1][i];
+					}
+				}
+				return topY;
+			},
+			this.getBottomY = function(){
+				var btmY = this.points[1][0];
+				for (var i = 1; i < this.points[1].length; i++){
+					if(this.points[1][i] > btmY){
+						btmY = this.points[1][i];
+					}
+				}
+				return btmY;
+			},
+			this.getDiagonalPoints = function(){
+				if (this.type == "triangle"){
+					var diagLines = [];
+
+					for (var i = 0; i < this.points[0].length -1; i++){
+						for (var j = i + 1; j < this.points[0].length; j++){
+							if (this.points[0][i] != this.points[0][j] && this.points[1][i] != this.points[1][j]){
+								diagLines.push([ [ this.points[0][i], this.points[1][i] ], [this.points[0][j], this.points[1][j] ] ] );
+							}
+						}
+					
+					}
+					/*
+					for (var i = 0; i < 4; i++){
+						alert(diagLines[i]);
+					} */
+					
+					return diagLines;
+				}
+				
+			}
+			this.rotate = function(){
+
+			},
+			this.collisionCheck = function(otherObj){
+				if (otherObj.type == "triangle"){
+					//var oObjTop = otherObj
+				}
+			} 
+
+		}
+
+
+		function component(mWidth,mHeight,colour,x,y,type,id){
+			this.mWidth = mWidth;
+			this.mHeight = mHeight;
+			this.color = colour;
+			this.startingX = x;
+			this.startingY = y;
+			this.x = x;
+			this.y = y;
+			this.type = type;
+			this.moveX;
+			this.moveY;
+			this.text;
+			this.id = id;
+
+			this.update = function(){
+				var ctx = canvasObj.context;
+				if (this.type == "square" || this.type == "btn"){
+					ctx.fillStyle = this.color;
+					ctx.fillRect(this.x, this.y, this.mWidth, this.mHeight);
+				} else if(this.type == "text" || this.type == "txtBtn"){
+					ctx.font = this.mWidth + " " + this.mHeight;
+					ctx.fillStyle = this.color;
+					ctx.fillText(this.text ,this.x ,this.y);
+				}
+			},
+			this.getLeftX = function(){
+				return this.x;
+			},
+			this.getRightX = function(){
+				return this.x + this.mWidth;
+			},
+			this.getTopY = function(){
+				return this.y;
+			},
+			this.getBottomY = function(){
+				return this.y + this.mHeight;
+			},
+			this.collisionCheck = function(otherObj){
+				var bCollision = false;
+				var bPossibleCol = false;
+				if (!( (this.getRightX() < otherObj.getLeftX() ) || (this.getLeftX() > otherObj.getRightX())
+						|| (this.getBottomY() < otherObj.getTopY()) || (this.getTopY() > otherObj.getBottomY() ) )){
+					
+						bPossibleCol = true;
+						var diagPoints = otherObj.getDiagonalPoints();
+
+						for (var i = 0; i < diagPoints.length; i++){
+							bCollision = true;
+							var x0 = diagPoints[i][0][0];
+							var y0 = diagPoints[i][0][1];
+							var x1 = diagPoints[i][1][0];
+							var y1 = diagPoints[i][1][1];
+
+							// get x and y values of opposite  point
+							var oppositeX;
+							var oppositeY;
+							var bgetOpposites = true;
+							for (var x = 0; x < otherObj.points[0].length; x++){
+								if (bgetOpposites){
+									oppositeX = otherObj.points[0][x];
+									oppositeY = otherObj.points[1][x];
+								}
+								
+								var bXandYnoMatch = true;
+								for (var y = 0; y < 2; y++){
+									if (oppositeX == diagPoints[i][y][0] && oppositeY == diagPoints[i][y][1]){
+										// wrong value
+										bXandYnoMatch = false;
+										bgetOpposites = true;
+										continue;
+									}
+								}
+								if (bXandYnoMatch == true){
+									break;
+								}
+							}
+
+							// y = mx + b
+							var m = (y1 - y0) / (x1 - x0);
+							var b = y0 - (m * x0);
+							var bTopOfLineIsCrash;
+							
+							if (((m * oppositeX) + b) < oppositeY){
+								//alert('bottom of diag is crash');
+								bTopOfLineIsCrash = false;
+							} else {
+								//alert('top of diag is crash');
+								bTopOfLineIsCrash = true;
+							}
+
+							var bAboveTriBtm = false;
+							var bBelowTriTop = false;
+							var bBtmLtoTR = false;
+							var xVal,yCompare,yResult;
+							if (x0 > x1){
+								if (y0 < y1){
+									bBtmLtoTR = true;
+								} else {
+									bBtmLtoTR = false;
+								}
+								
+							} else {
+								if (y0 < y1){
+									bBtmLtoTR = false;
+								} else {
+									bBtmLtoTR = true;
+								}
+								
+							}
+							if (bBtmLtoTR == true){
+								if (bTopOfLineIsCrash == true){
+									xVal = this.getLeftX();
+									yCompare = this.getTopY();
+								} else {
+									xVal = this.getRightX();
+									yCompare = this.getBottomY();
+								}
+							} else { // if line is top left to btm right
+								if (bTopOfLineIsCrash == true){
+									xVal = this.getRightX();
+									yCompare = this.getTopY();
+								} else {
+									xVal = this.getLeftX();
+									yCompare = this.getBottomY();
+								}
+							}
+							
+							var yResult = (m * xVal) + b;
+							if (bTopOfLineIsCrash == true){
+								if (yResult < yCompare){
+									bCollision = false;
+									break;
+								} 
+							} else {
+								if (yResult > yCompare){
+									bCollision = false;
+									break;
+								} 
+							}
+							
+						} // end for loop
+	
+				} //  end of if inside square
+
+				if (this.id == 1){
+					if (bPossibleCol == true){
+
+						cvsLabel1.text = "travelSquare potential clash - TRUE";
+					} else {
+						cvsLabel1.text = "travelSquare has no potential clash";
+					}
+					if (bCollision == true){
+						cvsLabel2.text = "travelSquare Clash: TRUE";
+					} else {
+						cvsLabel2.text = "travelSquare Clash: false";
+					}
+				} else if (this.id == 2){
+					var msg = "travelSquare2 pc: ";
+					if (bPossibleCol == true){
+						msg += "True ";
+					} else {
+						msg += "False ";
+					}
+					msg += "Clash ";
+					if (bCollision){
+						msg += "True";
+					} else {
+						msg += "False";
+					}
+					cvsLabel3.text = msg;
+				}
+				return bCollision;
+			}
+
+		}
+
+
+	function updateAll(){
+		canvasObj.clear();
+		canvasObj.update();
+		tri1.update();
+		travelSquare1[0].x += travelSquare1[0].moveX;
+		travelSquare1[0].collisionCheck(tri1);
+		travelSquare1[0].update();
+		if (travelSquare1[0].x <= canvasObj.innerX){
+			if (travelSquare1.length == 1){
+				//alert('about to push another square');
+				travelSquare1.push(new component(100,100,"#669999",canvasObj.iWidthRight,300,"square",1));
+			}
+			
+			if (travelSquare1.length == 2){
+				travelSquare1[1].x += travelSquare1[0].moveX;
+				travelSquare1[1].update();
+			}
+			
+			if (travelSquare1[0].x + travelSquare1[0].mWidth < canvasObj.innerX){
+				travelSquare1[0].x = travelSquare1[1].x;
+				travelSquare1.pop();
+			}
+		}
+
+		updatePnlslbls();
+		canvasObj.frameNo++;
+	}
+	
+
+	function updatePnlslbls(){
+
+		leftPane.update();
+		rightPane.update();
+		cvsLabel1.update();
+		cvsLabel2.update();
+	}
+
+	</script>
+</body>
+</html>
