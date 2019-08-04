@@ -3,7 +3,7 @@ Examples of 2d graphics and animation on a Javascript canvas
 
 This repository contains multiple stand alone pages all of which are html canvas elements.
 
-######cnvs_TriangleSquareCollision :-
+###### cnvs_TriangleSquareCollision :-
 Contains a triangle made from three coordinate points and a square that will continue
 to move left across the main canvas area.
 When the square is over the triangle a label will notify of clash.
@@ -12,7 +12,7 @@ When the square starts to travel outside of the main canvas area, a clone of the
 of the inner canvas. When the square is completely out of view, the clone of the original square will take its place.
 
 ![screenshot](/screenshots/triSquareCollision1.png)
-![Alt Text](/screenshots/triSquareCollision1.png)
+Format: ![Alt Text](/screenshots/triSquareCollision1.png)
 
 ###### cnvs_TriangleSquareFall :-
 Just like triangleSquareCollision a triangle is made of three coordinates. Each side of the inner canvas will have
