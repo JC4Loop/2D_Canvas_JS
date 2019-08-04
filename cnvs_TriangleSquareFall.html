@@ -30,7 +30,7 @@
 		function startCanvas(){
 			var tri1Points = [
 							[	800, 700 , 450	], // x values
-							[	350 , 700 , 600	], // y values - 650 and 350 is one point
+							[	150 , 500 , 400	], // y values - 650 and 350 is one point
 						];
 
 			tri1 = new componentByPoints("#b3b300",50,50,"triangle",tri1Points);
@@ -68,7 +68,7 @@
 			lblThirdDiagOp = new component("17px","Consolas","#00ff55",30,330,"text");
 			lblThirdDiagOp.text = "Opposite Point of Diagonal 3";
 
-			txtBtn1 = new txtButton(250,30,"white","red",canvasObj.innerWidth + 30,50,"Click To Reset square Fall")
+			txtBtn1 = new txtButton(280,30,"white","red",canvasObj.innerWidth + 30,50,"Click To Reset square Fall")
 					//txtButton(mWidth,mHeight,txtColour,btnColour,x, y,text)
 			btn1XL = new component(30,30,"blue",canvasObj.innerX + canvasObj.innerWidth + 15, 160,"btn");
 			btn1XR = new component(30,30,"blue",canvasObj.innerX + canvasObj.innerWidth + 75, 160,"btn");
